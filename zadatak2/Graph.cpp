@@ -1,30 +1,29 @@
 #include "Graph.h"
 
-// Konstruktor grafa
 Graph::Graph(int rows, int cols) : rows(rows), cols(cols) {
     initializeGrid();
 }
 
-// Inicijalizacija mreže
 void Graph::initializeGrid() {
     grid.resize(rows, std::vector<int>(cols, 1));
     distances.resize(rows, std::vector<int>(cols, INT_MAX));
     previous.resize(rows, std::vector<Node>(cols, { -1, -1, -1 }));
 }
 
-// Provjera je li pozicija unutar granica mreže
-bool Graph::isValid(int x, int y) {
+bool Graph::isValid(int x, int y) const {
     return (x >= 0 && x < rows && y >= 0 && y < cols);
 }
 
-// Dodavanje zida na mrežu
 void Graph::addWall(int x, int y) {
     if (isValid(x, y)) {
-        grid[x][y] = INT_MAX; // Zid
+        grid[x][y] = INT_MAX;
     }
 }
 
-// Implementacija Dijkstra algoritma
+bool Graph::isWall(int x, int y) const {
+    return grid[x][y] == INT_MAX;
+}
+
 void Graph::dijkstra(Node start, Node end) {
     std::priority_queue<Node, std::vector<Node>, std::greater<Node>> pq;
     pq.push({ start.x, start.y, 0 });
@@ -55,7 +54,6 @@ void Graph::dijkstra(Node start, Node end) {
     }
 }
 
-// Rekonstrukcija puta nakon što je Dijkstra algoritam pronašao najkraæi put
 void Graph::reconstructPath(Node end) {
     Node current = end;
     while (current.x != -1 && current.y != -1) {
@@ -65,7 +63,6 @@ void Graph::reconstructPath(Node end) {
     std::reverse(path.begin(), path.end());
 }
 
-// Iscrtavanje puta na mreži
 void Graph::printPath() {
     for (const auto& node : path) {
         system("clear");
@@ -74,7 +71,7 @@ void Graph::printPath() {
                 if (i == node.x && j == node.y)
                     std::cout << "X ";
                 else if (grid[i][j] == INT_MAX)
-                    std::cout << "# "; // Zid
+                    std::cout << "# ";
                 else
                     std::cout << ". ";
             }
@@ -82,4 +79,8 @@ void Graph::printPath() {
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
+}
+
+std::vector<Node> Graph::getPath() const {
+    return path;
 }
